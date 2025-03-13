@@ -1,15 +1,29 @@
 import { GeistSans } from "geist/font/sans";
 import { type AppType } from "next/app";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton
+} from '@clerk/nextjs'
+import "~/styles/globals.css" // Correct import
 
 import { api } from "~/utils/api";
 
-import "~/styles/globals.css";
-
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <div className={GeistSans.className}>
-      <Component {...pageProps} />
-    </div>
+    <ClerkProvider>
+      <div className={GeistSans.className}>
+        <SignedOut>
+          <SignInButton />
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+        <Component {...pageProps} />
+      </div>
+    </ClerkProvider>
   );
 };
 
