@@ -11,6 +11,8 @@ import { ClerkProvider,
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import "~/styles/globals.css" // Correct import
+import {faCartShopping, faHouse, faBell, faBook} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { api } from "~/utils/api";
 
@@ -36,61 +38,99 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     }
   };
   return (
-    <div className={`${GeistSans.className} min-h-screen flex flex-col bg-white`}>
-      {/* Top Bar */}
-      <header className="p-4 border-b flex flex-col gap-2 bg-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link href="/">
-              <button className="rounded border border-gray-300 px-4 py-1">HOME</button>
-            </Link>
-            <button className="rounded border border-gray-300 px-4 py-1">Notifications</button>
-          </div>
-          <div className="flex-1 flex flex-col items-center">
-            <form onSubmit={handleSearch} className="w-full max-w-md flex flex-col items-center">
-              <input
-                type="text"
-                placeholder="Search bar"
-                className="w-full rounded border border-gray-300 p-2 text-center"
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-              />
-            </form>
-            <button className="mt-1 rounded border border-gray-400 px-4 py-1 text-sm">Advanced filters</button>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link href="/cart">
-              <button className="rounded border border-gray-300 px-4 py-1">Cart</button>
-            </Link>
-            <Link href="/my-books">
-              <button className="rounded border border-gray-300 px-4 py-1">My Books</button>
-            </Link>
-            <SignedOut>
-              <button onClick={() => openSignIn()} className="px-4 py-1 bg-white text-[#2e026d] rounded border border-gray-300 hover:opacity-80 transition">
-                Sign In
-              </button>
-              <button onClick={() => openSignUp()} className="px-4 py-1 bg-white text-[#2e026d] rounded border border-gray-300 hover:opacity-80 transition">
-                Sign Up
-              </button>
-            </SignedOut>
-            <SignedIn>
-              <div className="border-2 border-white rounded-full overflow-hidden w-8 h-8">
-                <UserButton />
-              </div>
-            </SignedIn>
-          </div>
+    <div className={`${GeistSans.className} min-h-screen flex flex-col bg-gradient-to-br from-white to-gray-100`}>
+      
+    {/* Top Bar */}
+    <header className="p-4 border-b shadow-sm bg-white sticky top-0 z-50">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        
+        {/* Left Side Buttons */}
+        <div className="flex items-center gap-3">
+          <Link href="/">
+            <button className="rounded-full border px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 transition flex items-center gap-2">
+            <FontAwesomeIcon icon={faHouse} size="lg" />
+            </button>
+          </Link>
+          <button className="rounded-full border px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 transition flex items-center gap-2">
+            <FontAwesomeIcon icon={faBell} size="lg"/>
+          </button>
         </div>
-      </header>
-      <main className="flex-grow">
-        {children}
-      </main>
-      {/* Footer */}
-      <footer className="flex justify-between items-center p-4 border-t bg-white">
-        <button className="rounded border border-gray-300 px-4 py-1">Language</button>
-        <span className="text-gray-400">© 2025 All rights reserved</span>
-        <button className="rounded-full border border-gray-300 px-6 py-1">Help</button>
+
+        {/* Search Center */}
+        <div className="flex-1 flex flex-col items-center">
+          <form onSubmit={handleSearch} className="w-full max-w-md flex">
+            <input
+              type="text"
+              placeholder="Search books, authors..."
+              className="flex-1 rounded-l-full border border-gray-300 p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="rounded-r-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 transition font-semibold"
+            >
+              Search
+            </button>
+          </form>
+          <button className="mt-2 rounded-full border border-gray-300 px-4 py-1 text-sm text-gray-500 hover:bg-gray-100 transition">
+            Advanced Filters
+          </button>
+        </div>
+
+        {/* Right Side Buttons */}
+        <div className="flex items-center gap-3">
+          <Link href="/cart">
+            <button className="rounded-full border px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 transition flex items-center gap-2">
+            <FontAwesomeIcon icon={faCartShopping} size="lg"/>
+            </button>
+          </Link>
+          <Link href="/my-books">
+              <button className="rounded-full border px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 transition">
+                My Books
+              </button>
+            </Link>
+
+          {/* Auth Buttons */}
+          <SignedOut>
+            <button
+              onClick={() => openSignIn()}
+              className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition font-semibold"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => openSignUp()}
+              className="px-4 py-2 bg-white text-blue-500 border border-blue-500 rounded-full hover:bg-blue-50 transition font-semibold"
+            >
+              Sign Up
+            </button>
+          </SignedOut>
+          <SignedIn>
+            <div className="border-2 border-blue-500 rounded-full overflow-hidden w-10 h-10">
+              <UserButton />
+            </div>
+          </SignedIn>
+        </div>
+
+      </div>
+    </header>
+
+    {/* Main Content */}
+    <main className="flex-grow p-6">{children}</main>
+
+    {/* Footer */}
+    <footer className="flex justify-between items-center p-4 border-t text-sm text-gray-500 bg-white shadow-inner">
+        <button className="rounded-full border border-gray-300 px-4 py-1 hover:bg-gray-100 transition">
+          Language
+        </button>
+        <span>© 2025 All rights reserved</span>
+        <button className="rounded-full border border-gray-300 px-4 py-1 hover:bg-gray-100 transition">
+          Help
+        </button>
       </footer>
-    </div>
+
+  </div>
   );
 }
 
