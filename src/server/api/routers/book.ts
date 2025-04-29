@@ -46,18 +46,26 @@ export const bookRouter = createTRPCRouter({
         .select()
         .from(bookCopies)
         .where(
-          and(eq(bookCopies.bookId, input.id), eq(bookCopies.status, "available"))
+          and(
+            eq(bookCopies.bookId, input.id),
+            eq(bookCopies.status, "available"),
+          ),
         );
       const available = availableCopies.length > 0;
       // Fetch reviews for this book
       const reviewRows = await ctx.db
-        .select({ userId: reviews.userId, rating: reviews.rating, reviewText: reviews.reviewText })
+        .select({
+          userId: reviews.userId,
+          rating: reviews.rating,
+          reviewText: reviews.reviewText,
+        })
         .from(reviews)
         .where(eq(reviews.bookId, input.id));
       // Compute average rating
-      const avgRating = reviewRows.length > 0
-        ? reviewRows.reduce((sum, r) => sum + r.rating, 0) / reviewRows.length
-        : null;
+      const avgRating =
+        reviewRows.length > 0
+          ? reviewRows.reduce((sum, r) => sum + r.rating, 0) / reviewRows.length
+          : null;
       // Fetch random book suggestions
       const suggestionRows = await ctx.db
         .select({ id: books.id, title: books.title })
@@ -67,7 +75,15 @@ export const bookRouter = createTRPCRouter({
         .limit(3);
       const suggestions = suggestionRows;
       // Return combined data (no coverImagePath)
-      return { ...book, authors: authorsList, categories: categoriesList, available, reviews: reviewRows, avgRating, suggestions };
+      return {
+        ...book,
+        authors: authorsList,
+        categories: categoriesList,
+        available,
+        reviews: reviewRows,
+        avgRating,
+        suggestions,
+      };
     }),
 
   // Simplified search: only title search

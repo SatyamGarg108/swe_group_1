@@ -14,25 +14,29 @@ export const cartRouter = createTRPCRouter({
         .where(eq(cartItems.userId, input.userId));
       // filter out null books
       const nonNull = rows.filter(
-        (r): r is { book: NonNullable<typeof r.book> } => r.book !== null
+        (r): r is { book: NonNullable<typeof r.book> } => r.book !== null,
       );
       return nonNull.map((r) => r.book);
     }),
   add: publicProcedure
     .input(z.object({ userId: z.string(), bookId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.insert(cartItems).values({ userId: input.userId, bookId: input.bookId });
+      await ctx.db
+        .insert(cartItems)
+        .values({ userId: input.userId, bookId: input.bookId });
       return { success: true };
     }),
   remove: publicProcedure
     .input(z.object({ userId: z.string(), bookId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.delete(cartItems).where(
-        and(
-          eq(cartItems.userId, input.userId),
-          eq(cartItems.bookId, input.bookId)
-        )
-      );
+      await ctx.db
+        .delete(cartItems)
+        .where(
+          and(
+            eq(cartItems.userId, input.userId),
+            eq(cartItems.bookId, input.bookId),
+          ),
+        );
       return { success: true };
     }),
 });

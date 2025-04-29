@@ -1,7 +1,12 @@
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { borrowTransactions, bookCopies, books, cartItems } from "~/server/db/schema";
+import {
+  borrowTransactions,
+  bookCopies,
+  books,
+  cartItems,
+} from "~/server/db/schema";
 
 export const borrowRouter = createTRPCRouter({
   getAll: publicProcedure
@@ -16,13 +21,15 @@ export const borrowRouter = createTRPCRouter({
         .where(
           and(
             eq(borrowTransactions.userId, input.userId),
-            isNull(borrowTransactions.returnDate)
-          )
+            isNull(borrowTransactions.returnDate),
+          ),
         );
       // Filter out entries without book and narrow types
       const valid = rows.filter(
-        (r): r is { borrow: typeof r.borrow; book: NonNullable<typeof r.book> } =>
-          r.book !== null
+        (
+          r,
+        ): r is { borrow: typeof r.borrow; book: NonNullable<typeof r.book> } =>
+          r.book !== null,
       );
       return valid.map(({ borrow, book }) => ({
         id: borrow.id,
@@ -38,7 +45,12 @@ export const borrowRouter = createTRPCRouter({
       const copy = await ctx.db
         .select()
         .from(bookCopies)
-        .where(and(eq(bookCopies.bookId, input.bookId), eq(bookCopies.status, "available")))
+        .where(
+          and(
+            eq(bookCopies.bookId, input.bookId),
+            eq(bookCopies.status, "available"),
+          ),
+        )
         .limit(1);
       if (!copy[0]) throw new Error("No available copy");
       // Create borrow transaction
@@ -50,9 +62,19 @@ export const borrowRouter = createTRPCRouter({
         dueDate: dueDate.toISOString().slice(0, 19).replace("T", " "),
       });
       // Update copy status
-      await ctx.db.update(bookCopies).set({ status: "checked_out" }).where(eq(bookCopies.id, copy[0].id));
+      await ctx.db
+        .update(bookCopies)
+        .set({ status: "checked_out" })
+        .where(eq(bookCopies.id, copy[0].id));
       // Remove from cart
-      await ctx.db.delete(cartItems).where(and(eq(cartItems.userId, input.userId), eq(cartItems.bookId, input.bookId)));
+      await ctx.db
+        .delete(cartItems)
+        .where(
+          and(
+            eq(cartItems.userId, input.userId),
+            eq(cartItems.bookId, input.bookId),
+          ),
+        );
       return { success: true };
     }),
   returnBook: publicProcedure
@@ -67,8 +89,8 @@ export const borrowRouter = createTRPCRouter({
           and(
             eq(borrowTransactions.userId, input.userId),
             eq(bookCopies.bookId, input.bookId),
-            isNull(borrowTransactions.returnDate)
-          )
+            isNull(borrowTransactions.returnDate),
+          ),
         )
         .limit(1);
       const rec = rows[0];
@@ -76,7 +98,9 @@ export const borrowRouter = createTRPCRouter({
       // Update borrow record with return date
       await ctx.db
         .update(borrowTransactions)
-        .set({ returnDate: new Date().toISOString().slice(0, 19).replace("T", " ") })
+        .set({
+          returnDate: new Date().toISOString().slice(0, 19).replace("T", " "),
+        })
         .where(eq(borrowTransactions.id, rec.borrow.id));
       // Set copy status back to available
       await ctx.db

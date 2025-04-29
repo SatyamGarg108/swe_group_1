@@ -19,7 +19,11 @@ export default function SearchResults() {
   });
 
   // tRPC search query
-  const { data: results = [], isLoading, refetch } = api.book.search.useQuery({
+  const {
+    data: results = [],
+    isLoading,
+    refetch,
+  } = api.book.search.useQuery({
     q: qStr,
     ...filters,
   });
@@ -49,7 +53,8 @@ export default function SearchResults() {
                     name="availableOnly"
                     checked={filters.availableOnly}
                     onChange={handleFilterChange}
-                  /> Available only
+                  />{" "}
+                  Available only
                 </label>
               </li>
               <li>
@@ -59,7 +64,8 @@ export default function SearchResults() {
                     name="ebooks"
                     checked={filters.ebooks}
                     onChange={handleFilterChange}
-                  /> E-books
+                  />{" "}
+                  E-books
                 </label>
               </li>
               <li>
@@ -69,7 +75,8 @@ export default function SearchResults() {
                     name="newArrivals"
                     checked={filters.newArrivals}
                     onChange={handleFilterChange}
-                  /> New arrivals
+                  />{" "}
+                  New arrivals
                 </label>
               </li>
               <li>
@@ -79,7 +86,8 @@ export default function SearchResults() {
                     name="fiction"
                     checked={filters.fiction}
                     onChange={handleFilterChange}
-                  /> Fiction
+                  />{" "}
+                  Fiction
                 </label>
               </li>
               <li>
@@ -89,7 +97,8 @@ export default function SearchResults() {
                     name="nonFiction"
                     checked={filters.nonFiction}
                     onChange={handleFilterChange}
-                  /> Non-fiction
+                  />{" "}
+                  Non-fiction
                 </label>
               </li>
             </ul>

@@ -4,14 +4,27 @@ import { useUser } from "@clerk/nextjs";
 import { api } from "~/utils/api";
 import { useState } from "react";
 
-function BorrowButton({ bookId, userId, onBorrowed }: { bookId: number, userId: string, onBorrowed: () => void }) {
+function BorrowButton({
+  bookId,
+  userId,
+  onBorrowed,
+}: {
+  bookId: number;
+  userId: string;
+  onBorrowed: () => void;
+}) {
   const borrowMutation = api.borrow.borrowBook.useMutation({
-    onSuccess: () => { onBorrowed(); },
+    onSuccess: () => {
+      onBorrowed();
+    },
   });
   const [loading, setLoading] = useState(false);
   const handleBorrow = () => {
     setLoading(true);
-    borrowMutation.mutate({ userId, bookId }, { onSettled: () => setLoading(false) });
+    borrowMutation.mutate(
+      { userId, bookId },
+      { onSettled: () => setLoading(false) },
+    );
   };
   return (
     <button
@@ -27,12 +40,17 @@ function BorrowButton({ bookId, userId, onBorrowed }: { bookId: number, userId: 
 export default function CartPage() {
   const { user } = useUser();
   // Fetch cart items for signed-in user
-  const { data: cart = [], isLoading, refetch } = api.cart.getAll.useQuery(
-    { userId: user?.id ?? '' },
-    { enabled: !!user }
-  );
-  const removeMutation = api.cart.remove.useMutation({ onSuccess: () => void refetch() });
-  const handleRemove = (bookId: number) => { if (user) removeMutation.mutate({ userId: user.id, bookId }); };
+  const {
+    data: cart = [],
+    isLoading,
+    refetch,
+  } = api.cart.getAll.useQuery({ userId: user?.id ?? "" }, { enabled: !!user });
+  const removeMutation = api.cart.remove.useMutation({
+    onSuccess: () => void refetch(),
+  });
+  const handleRemove = (bookId: number) => {
+    if (user) removeMutation.mutate({ userId: user.id, bookId });
+  };
 
   // Filter out any null entries (shouldn't occur but ensures type safety)
   const items = cart.filter((b): b is NonNullable<typeof b> => b !== null);
@@ -52,16 +70,30 @@ export default function CartPage() {
             <div className="text-center text-gray-500">Your cart is empty.</div>
           ) : (
             items.map((book) => (
-              <div key={book.id} className="flex items-center gap-6 rounded border border-gray-200 bg-white p-4 shadow-sm">
+              <div
+                key={book.id}
+                className="flex items-center gap-6 rounded border border-gray-200 bg-white p-4 shadow-sm"
+              >
                 {/* Book Details */}
                 <div className="flex-1">
-                  <Link href={`/book/${book.id}`} className="font-semibold text-blue-600 hover:underline">
+                  <Link
+                    href={`/book/${book.id}`}
+                    className="font-semibold text-blue-600 hover:underline"
+                  >
                     {book.title}
                   </Link>
-                  <div className="text-sm text-gray-500">Series: {book.series ?? 'N/A'}</div>
-                  <div className="text-sm text-gray-500">ISBN: {book.isbn ?? 'N/A'}</div>
-                  <div className="text-sm text-gray-500">Published: {book.publicationYear ?? 'N/A'}</div>
-                  <div className="text-xs text-gray-400 mt-2">{book.description?.slice(0, 100) ?? ''}</div>
+                  <div className="text-sm text-gray-500">
+                    Series: {book.series ?? "N/A"}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    ISBN: {book.isbn ?? "N/A"}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Published: {book.publicationYear ?? "N/A"}
+                  </div>
+                  <div className="mt-2 text-xs text-gray-400">
+                    {book.description?.slice(0, 100) ?? ""}
+                  </div>
                 </div>
                 <button
                   className="rounded border border-gray-300 px-4 py-2 hover:bg-red-100"
@@ -69,7 +101,11 @@ export default function CartPage() {
                 >
                   Remove
                 </button>
-                <BorrowButton bookId={book.id} userId={user.id} onBorrowed={refetch} />
+                <BorrowButton
+                  bookId={book.id}
+                  userId={user.id}
+                  onBorrowed={refetch}
+                />
               </div>
             ))
           )}
