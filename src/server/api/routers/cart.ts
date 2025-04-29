@@ -12,7 +12,11 @@ export const cartRouter = createTRPCRouter({
         .from(cartItems)
         .leftJoin(books, eq(books.id, cartItems.bookId))
         .where(eq(cartItems.userId, input.userId));
-      return rows.map((r) => r.book);
+      // filter out null books
+      const nonNull = rows.filter(
+        (r): r is { book: NonNullable<typeof r.book> } => r.book !== null
+      );
+      return nonNull.map((r) => r.book);
     }),
   add: publicProcedure
     .input(z.object({ userId: z.string(), bookId: z.number() }))

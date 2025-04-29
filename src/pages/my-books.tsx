@@ -1,37 +1,22 @@
 import Head from "next/head";
-import { useEffect, useState } from "react";
-
-// Mock checked out books
-const mockCheckedOut = [
-  {
-    id: "1",
-    title: "The Great Gatsby",
-    cover: "cover1.png",
-    info: "Due: 2025-05-10",
-    renewable: true,
-  },
-  {
-    id: "2",
-    title: "1984",
-    cover: "cover2.png",
-    info: "Due: 2025-05-15",
-    renewable: false,
-  },
-  {
-    id: "3",
-    title: "To Kill a Mockingbird",
-    cover: "cover3.png",
-    info: "Due: 2025-05-20",
-    renewable: true,
-  },
-];
+import { useUser } from "@clerk/nextjs";
+import { api } from "~/utils/api";
+import { useState } from "react";
 
 export default function MyBooksPage() {
-  const [books, setBooks] = useState<typeof mockCheckedOut>([]);
-  useEffect(() => {
-    // In real app, fetch from API
-    setBooks(mockCheckedOut);
-  }, []);
+  const { user } = useUser();
+  // Fetch checked-out books and refetch on return
+  const { data: books = [], isLoading, refetch } = api.borrow.getAll.useQuery(
+    { userId: user?.id ?? '' },
+    { enabled: !!user }
+  );
+  const returnMutation = api.borrow.returnBook.useMutation({
+    onSuccess: () => { void refetch(); },
+  });
+  const [returningId, setReturningId] = useState<number | null>(null);
+
+  if (!user) return <p className="p-4">Please sign in to view your checked out books.</p>;
+  if (isLoading) return <p className="p-4">Loading checked out books...</p>;
 
   return (
     <>
@@ -44,14 +29,16 @@ export default function MyBooksPage() {
         </h2>
 
         <div className="flex max-h-[70vh] flex-col gap-6 overflow-y-auto pr-2">
-          {books.map((book) => (
+          {books.length === 0 ? (
+            <div className="text-center text-gray-500">You have no checked out books.</div>
+          ) : books.map((book) => (
             <div
               key={book.id}
               className="flex items-center gap-6 rounded-xl bg-white p-5 shadow-md transition hover:shadow-lg"
             >
-              {/* Book Cover */}
+              {/* Book Cover Placeholder */}
               <div className="flex h-36 w-28 items-center justify-center rounded-lg border border-gray-300 bg-gray-100 text-sm text-gray-400">
-                {book.cover}
+                No cover
               </div>
 
               {/* Book Details */}
@@ -59,10 +46,10 @@ export default function MyBooksPage() {
                 <div className="text-xl font-semibold text-gray-800">
                   {book.title}
                 </div>
-                <div className="mt-2 text-sm text-gray-500">{book.info}</div>
+                <div className="mt-2 text-sm text-gray-500">Due: {book.dueDate ? new Date(book.dueDate).toLocaleDateString() : 'N/A'}</div>
               </div>
 
-              {/* Renew Button */}
+              {/* Renew & Return Buttons */}
               <div className="flex flex-col items-center gap-2">
                 {book.renewable ? (
                   <button className="rounded-full bg-blue-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-600">
@@ -76,6 +63,16 @@ export default function MyBooksPage() {
                     Not Renewable
                   </button>
                 )}
+                <button
+                  className="rounded-full bg-red-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
+                  onClick={() => {
+                    setReturningId(book.id);
+                    returnMutation.mutate({ userId: user.id, bookId: book.id });
+                  }}
+                  disabled={returningId === book.id}
+                >
+                  {returningId === book.id ? "Returning..." : "Return"}
+                </button>
               </div>
             </div>
           ))}

@@ -7,8 +7,9 @@ import {
   bookCategories,
   categories,
   bookCopies,
+  reviews,
 } from "~/server/db/schema";
-import { eq, like, and } from "drizzle-orm";
+import { eq, like, and, not, sql } from "drizzle-orm";
 
 export const bookRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -45,14 +46,28 @@ export const bookRouter = createTRPCRouter({
         .select()
         .from(bookCopies)
         .where(
-          and(
-            eq(bookCopies.bookId, input.id),
-            eq(bookCopies.status, "available")
-          )
+          and(eq(bookCopies.bookId, input.id), eq(bookCopies.status, "available"))
         );
       const available = availableCopies.length > 0;
-      // Return combined data
-      return { ...book, authors: authorsList, categories: categoriesList, available };
+      // Fetch reviews for this book
+      const reviewRows = await ctx.db
+        .select({ userId: reviews.userId, rating: reviews.rating, reviewText: reviews.reviewText })
+        .from(reviews)
+        .where(eq(reviews.bookId, input.id));
+      // Compute average rating
+      const avgRating = reviewRows.length > 0
+        ? reviewRows.reduce((sum, r) => sum + r.rating, 0) / reviewRows.length
+        : null;
+      // Fetch random book suggestions
+      const suggestionRows = await ctx.db
+        .select({ id: books.id, title: books.title })
+        .from(books)
+        .where(not(eq(books.id, input.id)))
+        .orderBy(sql`RAND()`)
+        .limit(3);
+      const suggestions = suggestionRows;
+      // Return combined data (no coverImagePath)
+      return { ...book, authors: authorsList, categories: categoriesList, available, reviews: reviewRows, avgRating, suggestions };
     }),
 
   // Simplified search: only title search

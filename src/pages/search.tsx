@@ -102,7 +102,7 @@ export default function SearchResults() {
                 <Link key={book.id} href={`/book/${book.id}`}>
                   <div className="flex cursor-pointer items-center space-x-6 rounded border border-gray-300 bg-white p-4 shadow-sm hover:bg-gray-100">
                     <div className="flex h-32 w-24 flex-shrink-0 items-center justify-center rounded bg-gray-200">
-                      <span className="text-gray-500">{book.coverImagePath ?? "Cover"}</span>
+                      <span className="text-gray-500">No cover</span>
                     </div>
                     <div className="flex-1">
                       <h4 className="mb-2 text-lg font-semibold">

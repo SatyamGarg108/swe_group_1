@@ -1,9 +1,9 @@
 import Head from "next/head";
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { api } from "~/utils/api";
+import Link from "next/link";
 
 export default function BookView() {
   const router = useRouter();
@@ -33,6 +33,8 @@ export default function BookView() {
   if (isLoading) return <p className="p-4">Loading book...</p>;
   if (!book) return <p className="p-4">Book not found.</p>;
 
+  // `book` is now non-null
+
   return (
     <>
       <Head>
@@ -43,17 +45,7 @@ export default function BookView() {
         <div className="mx-auto flex max-w-6xl flex-col gap-8 rounded-xl bg-white p-6 shadow-md transition hover:shadow-lg md:flex-row">
           {/* Book cover */}
           <div className="flex h-80 w-56 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-gray-100">
-            {book.coverImagePath ? (
-              <Image
-                src={book.coverImagePath}
-                alt={book.title}
-                width={224}
-                height={320}
-                className="object-contain"
-              />
-            ) : (
-              <span className="text-gray-500">No cover available</span>
-            )}
+            <span className="text-gray-500">No cover available</span>
           </div>
 
           {/* Book details */}
@@ -66,14 +58,52 @@ export default function BookView() {
               <p className="mt-1 text-gray-500">Published: {book.publicationYear ?? 'N/A'}</p>
             </div>
 
+            {/* Stats: rating, reviews count, availability */}
+            <div className="flex gap-4">
+              <div className="flex-1 rounded-lg bg-yellow-50 p-3 text-center font-semibold text-yellow-700">
+                ⭐ Rating: {book.avgRating ? book.avgRating.toFixed(1) : 'N/A'} / 5
+              </div>
+              <div className="flex-1 rounded-lg bg-gray-50 p-3 text-center font-semibold text-gray-700">
+                {book.reviews.length} Reviews
+              </div>
+              <div className={`flex-1 rounded-lg p-3 text-center font-semibold ${book.available ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                {book.available ? 'Available' : 'Not Available'}
+              </div>
+            </div>
+
             {/* Description */}
             <div className="rounded-lg bg-gray-50 p-4">
               <h2 className="mb-2 text-lg font-bold">📖 Description</h2>
               <p className="text-gray-600">{book.description ?? 'No description available.'}</p>
             </div>
 
-            {/* Reviews and similar books not yet implemented */}
-            <p className="text-gray-500">Reviews and similar books not implemented.</p>
+            {/* User Reviews */}
+            <div className="rounded-lg bg-gray-50 p-4">
+              <h2 className="mb-2 text-lg font-bold">📝 User Reviews</h2>
+              {book.reviews.length ? (
+                <ul className="list-disc space-y-2 pl-5 text-gray-600">
+                  {book.reviews.map((r, idx) => (
+                    <li key={idx}>
+                      <span className="font-semibold">{r.userId}:</span> {r.reviewText}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-400">No reviews yet.</p>
+              )}
+            </div>
+
+            {/* Suggestions */}
+            <div className="rounded-lg bg-gray-50 p-4">
+              <h2 className="mb-2 text-lg font-bold">📚 You Might Also Like</h2>
+              <div className="flex gap-4">
+                {book.suggestions.map((s) => (
+                  <Link key={s.id} href={`/book/${s.id}`} className="rounded bg-white p-2 shadow hover:bg-gray-100">
+                    {s.title}
+                  </Link>
+                ))}
+              </div>
+            </div>
 
             {/* Buttons */}
             <div className="mt-4 flex gap-4">
