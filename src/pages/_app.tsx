@@ -11,7 +11,7 @@ import { ClerkProvider,
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import "~/styles/globals.css" // Correct import
-import {faCartShopping, faHouse, faBell, faBook} from '@fortawesome/free-solid-svg-icons';
+import {faCartShopping, faHouse, faBell, faMagnifyingGlass, faFilter} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { api } from "~/utils/api";
@@ -58,24 +58,34 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Search Center */}
         <div className="flex-1 flex flex-col items-center">
-          <form onSubmit={handleSearch} className="w-full max-w-md flex">
+          <form onSubmit={handleSearch} className="w-full max-w-md flex items-center gap-2">
+            {/* Advanced Filters Button */}
+            <button
+              type="button"
+              className="flex items-center justify-center rounded-full border border-gray-300 p-3 hover:bg-gray-100 transition"
+              aria-label="Advanced Filters"
+            >
+              <FontAwesomeIcon icon={faFilter} size="lg" className="text-gray-500" />
+            </button>
+
+            {/* Search Input */}
             <input
               type="text"
               placeholder="Search books, authors..."
-              className="flex-1 rounded-l-full border border-gray-300 p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="flex-1 rounded-full border border-gray-300 p-3 focus:ring-2 focus:ring-blue-500 outline-none"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
+
+            {/* Search Button */}
             <button
               type="submit"
-              className="rounded-r-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 transition font-semibold"
+              className="rounded-full bg-blue-500 hover:bg-blue-600 text-white p-3 transition flex items-center justify-center"
+              aria-label="Search"
             >
-              Search
+              <FontAwesomeIcon icon={faMagnifyingGlass} size="lg" />
             </button>
           </form>
-          <button className="mt-2 rounded-full border border-gray-300 px-4 py-1 text-sm text-gray-500 hover:bg-gray-100 transition">
-            Advanced Filters
-          </button>
         </div>
 
         {/* Right Side Buttons */}

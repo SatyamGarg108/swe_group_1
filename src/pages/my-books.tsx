@@ -20,22 +20,40 @@ export default function MyBooksPage() {
       <Head>
         <title>My Checked Out Books | LibraryCatalog</title>
       </Head>
-      <main className="min-h-screen bg-white p-4">
-        <h2 className="mb-6 text-center text-2xl font-bold">My books:</h2>
-        <div className="flex flex-col gap-6 max-h-[60vh] overflow-y-auto pr-2">
+      <main className="min-h-screen bg-gradient-to-br from-white to-gray-100 p-6">
+        <h2 className="mb-8 text-center text-3xl font-extrabold text-gray-800">📚 My Books</h2>
+
+        <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2">
           {books.map((book) => (
-            <div key={book.id} className="flex items-center gap-6 border rounded p-4">
-              <div className="flex h-32 w-24 items-center justify-center rounded border border-gray-300 bg-gray-100">
-                <span className="text-gray-500">{book.cover}</span>
+            <div
+              key={book.id}
+              className="flex items-center gap-6 rounded-xl bg-white shadow-md p-5 hover:shadow-lg transition"
+            >
+              {/* Book Cover */}
+              <div className="flex h-36 w-28 items-center justify-center rounded-lg border border-gray-300 bg-gray-100 text-gray-400 text-sm">
+                {book.cover}
               </div>
-              <div className="flex-1 rounded border border-gray-300 p-4">
-                <div className="font-bold">{book.title}</div>
-                <div>{book.info}</div>
+
+              {/* Book Details */}
+              <div className="flex-1">
+                <div className="text-xl font-semibold text-gray-800">{book.title}</div>
+                <div className="text-sm text-gray-500 mt-2">{book.info}</div>
               </div>
+
+              {/* Renew Button */}
               <div className="flex flex-col items-center gap-2">
-                <button className="rounded border border-gray-300 px-4 py-2">
-                  {book.renewable ? "Renew" : "Not renewable"}
-                </button>
+                {book.renewable ? (
+                  <button className="rounded-full bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 text-sm font-medium transition">
+                    Renew
+                  </button>
+                ) : (
+                  <button
+                    className="rounded-full bg-gray-300 text-gray-600 px-5 py-2 text-sm font-medium cursor-not-allowed"
+                    disabled
+                  >
+                    Not Renewable
+                  </button>
+                )}
               </div>
             </div>
           ))}
