@@ -12,9 +12,9 @@ export const borrowRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ ctx, input }) => {
-      // Fetch borrow records with associated books and copyId
+      // Fetch borrow records with associated books
       const rows = await ctx.db
-        .select({ borrow: borrowTransactions, book: books, copy: bookCopies })
+        .select({ borrow: borrowTransactions, book: books })
         .from(borrowTransactions)
         .leftJoin(bookCopies, eq(bookCopies.id, borrowTransactions.copyId))
         .leftJoin(books, eq(books.id, bookCopies.bookId))
@@ -24,23 +24,18 @@ export const borrowRouter = createTRPCRouter({
             isNull(borrowTransactions.returnDate),
           ),
         );
-      // Filter out entries without book and copy and narrow types
+      // Filter out entries without book and narrow types
       const valid = rows.filter(
         (
           r,
-        ): r is {
-          borrow: typeof r.borrow;
-          book: NonNullable<typeof r.book>;
-          copy: NonNullable<typeof r.copy>;
-        } => r.book !== null && r.copy !== null,
+        ): r is { borrow: typeof r.borrow; book: NonNullable<typeof r.book> } =>
+          r.book !== null,
       );
-      return valid.map(({ borrow, book, copy }) => ({
+      return valid.map(({ borrow, book }) => ({
         id: borrow.id,
         title: book.title,
         dueDate: borrow.dueDate,
         renewable: borrow.renewalCount < 2,
-        copyId: copy.id,
-        bookId: book.id,
       }));
     }),
   borrowBook: publicProcedure
@@ -83,9 +78,9 @@ export const borrowRouter = createTRPCRouter({
       return { success: true };
     }),
   returnBook: publicProcedure
-    .input(z.object({ userId: z.string(), copyId: z.number() }))
+    .input(z.object({ userId: z.string(), bookId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      // Find the active borrow record for this user and copy
+      // Find the active borrow record for this user and book
       const rows = await ctx.db
         .select({ borrow: borrowTransactions, copy: bookCopies })
         .from(borrowTransactions)
@@ -93,7 +88,7 @@ export const borrowRouter = createTRPCRouter({
         .where(
           and(
             eq(borrowTransactions.userId, input.userId),
-            eq(borrowTransactions.copyId, input.copyId),
+            eq(bookCopies.bookId, input.bookId),
             isNull(borrowTransactions.returnDate),
           ),
         )

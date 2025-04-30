@@ -16,28 +16,12 @@ export default function MyBooksPage() {
     { userId: user?.id ?? "" },
     { enabled: !!user },
   );
-  const [returningCopyId, setReturningCopyId] = useState<number | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const returnMutation = api.borrow.returnBook.useMutation({
-    onMutate: ({ copyId }) => {
-      setReturningCopyId(copyId);
-      setErrorMsg(null);
-    },
     onSuccess: () => {
       void refetch();
     },
-    onSettled: () => {
-      setReturningCopyId(null);
-    },
-    onError: (error: unknown) => {
-      console.error("Failed to return book:", error);
-      setErrorMsg(
-        error instanceof Error
-          ? error.message
-          : "Failed to return book. Please try again.",
-      );
-    },
   });
+  const [returningId, setReturningId] = useState<number | null>(null);
 
   if (!user)
     return (
@@ -69,7 +53,7 @@ export default function MyBooksPage() {
                 {/* Book Cover */}
                 <div className="flex h-36 w-28 items-center justify-center overflow-hidden rounded-lg border border-gray-300 bg-gray-100">
                   <Image
-                    src={`/${book.bookId}.jpg`}
+                    src={`/${book.id}.jpg`}
                     alt={`Cover of ${book.title}`}
                     width={112}
                     height={144}
@@ -93,16 +77,11 @@ export default function MyBooksPage() {
                 {/* Renew & Return Buttons */}
                 <div className="flex items-center gap-4">
                   {/* Read Book Button */}
-                  <a
-                    href={`/Book_Files/${book.bookId}.pdf`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download
-                  >
-                    <button className="flex h-20 w-40 items-center justify-center rounded-full bg-green-500 text-sm font-medium text-white shadow-md transition hover:bg-green-600">
+                  <Link href={`/read/${book.id}`}>
+                    <button className="h-20 w-40 rounded-full bg-green-500 text-white text-sm font-medium transition hover:bg-green-600 flex items-center justify-center shadow-md">
                       Read Book
                     </button>
-                  </a>
+                  </Link>
 
                   {/* Renew & Return Buttons */}
                   <div className="flex flex-col items-center gap-2">
@@ -110,7 +89,7 @@ export default function MyBooksPage() {
                       <button className="rounded-full bg-blue-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-600">
                         Renew
                       </button>
-                    ) : (
+                    ) : ( 
                       <button
                         className="cursor-not-allowed rounded-full bg-gray-300 px-5 py-2 text-sm font-medium text-gray-600"
                         disabled
@@ -120,20 +99,16 @@ export default function MyBooksPage() {
                     )}
                     <button
                       className="rounded-full bg-red-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
-                      onClick={() =>
+                      onClick={() => {
+                        setReturningId(book.id);
                         returnMutation.mutate({
                           userId: user.id,
-                          copyId: book.copyId,
-                        })
-                      }
-                      disabled={
-                        returningCopyId === book.copyId ||
-                        returnMutation.isPending
-                      }
+                          bookId: book.id,
+                        });
+                      }}
+                      disabled={returningId === book.id}
                     >
-                      {returningCopyId === book.copyId
-                        ? "Returning..."
-                        : "Return"}
+                      {returningId === book.id ? "Returning..." : "Return"}
                     </button>
                   </div>
                 </div>
