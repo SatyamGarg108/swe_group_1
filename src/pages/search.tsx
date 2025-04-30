@@ -43,10 +43,13 @@ export default function SearchResults() {
         <h2 className="mb-4 text-center text-xl font-bold">
           {`Search Results for "${qStr}"`}
         </h2>
-        <div className="flex">
-          <aside className="mr-4 w-56 rounded border border-gray-300 bg-gray-50 p-4">
-            <h3 className="mb-2 font-bold">Advanced search filters</h3>
-            <ul className="space-y-2 text-sm">
+        <div className="flex gap-6">
+          <aside className="mr-2 w-64 rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-bold text-blue-700 flex items-center gap-2">
+              <svg className="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4z" /></svg>
+              Advanced Filters
+            </h3>
+            <ul className="space-y-3 text-sm">
               <li>
                 <label>
                   <input

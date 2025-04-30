@@ -7,6 +7,7 @@ import { api } from "~/utils/api";
 
 export default function Home() {
   const { data: books = [], isLoading } = api.book.getAll.useQuery();
+  
 
   return (
     <>
@@ -26,7 +27,7 @@ export default function Home() {
 
         {/* Books of the week section */}
         <h2 className="mb-6 text-center text-2xl font-bold text-gray-700">
-          📚 Books of the Week
+          📚 Full Catalog
         </h2>
 
         {isLoading ? (
@@ -35,7 +36,7 @@ export default function Home() {
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
             {books.map((book) => (
               <Link key={book.id} href={`/book/${book.id}`}>
-                <div className="group flex cursor-pointer flex-col items-center justify-center rounded-2xl bg-white p-6 shadow-md transition-all hover:shadow-xl">
+                <div className="group h-96 flex cursor-pointer flex-col items-center justify-center rounded-2xl bg-white p-6 shadow-md transition-all hover:shadow-xl">
                   <Image
                     src={`/${book.id}.jpg`}
                     alt={`Cover of ${book.title}`}
