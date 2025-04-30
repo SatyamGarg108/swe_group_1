@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { faMessage, faXmark, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import {
+  faMessage,
+  faXmark,
+  faPaperPlane,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type Message = {
@@ -25,28 +29,28 @@ const ChatBot = () => {
   const handleSend = () => {
     const trimmed = inputText.trim();
     if (!trimmed) return;
-  
-    setConversation(prev => [...prev, { text: trimmed, sender: "user" }]);
+
+    setConversation((prev) => [...prev, { text: trimmed, sender: "user" }]);
     setInputText("");
-  
+
     setTimeout(() => {
       try {
         const nextBotResponse = responses[messageIndex];
         if (typeof nextBotResponse === "string") {
-          setConversation(prev => [
+          setConversation((prev) => [
             ...prev,
             { text: nextBotResponse, sender: "bot" },
           ]);
-          setMessageIndex(prev => prev + 1);
+          setMessageIndex((prev) => prev + 1);
         } else {
           // fallback
-          setConversation(prev => [
+          setConversation((prev) => [
             ...prev,
             { text: "Sorry, having trouble understanding.", sender: "bot" },
           ]);
         }
       } catch {
-        setConversation(prev => [
+        setConversation((prev) => [
           ...prev,
           { text: "Sorry, something went wrong.", sender: "bot" },
         ]);
@@ -63,14 +67,14 @@ const ChatBot = () => {
       {!isOpen ? (
         <button
           onClick={() => setIsOpen(true)}
-          className="rounded-full bg-[#722420] p-4 px-5 text-white shadow-lg hover:bg-[#722420] transition"
+          className="rounded-full bg-[#722420] p-4 px-5 text-white shadow-lg transition hover:bg-[#722420]"
         >
           <FontAwesomeIcon icon={faMessage} size="lg" />
         </button>
       ) : (
-        <div className="w-96 h-[450px] bg-[#722420] rounded-xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+        <div className="flex h-[450px] w-96 flex-col overflow-hidden rounded-xl border border-gray-200 bg-[#722420] shadow-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-2 bg-[#722420] text-white">
+          <div className="flex items-center justify-between bg-[#722420] px-4 py-2 text-white">
             <span className="font-semibold">Use our AI Chatbot!</span>
             <button onClick={() => setIsOpen(false)}>
               <FontAwesomeIcon icon={faXmark} size="lg" />
@@ -78,14 +82,14 @@ const ChatBot = () => {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 p-3 overflow-y-auto space-y-2 text-sm bg-gray-50">
+          <div className="flex-1 space-y-2 overflow-y-auto bg-gray-50 p-3 text-sm">
             {conversation.map((msg, idx) => (
               <div
                 key={idx}
-                className={`max-w-[80%] p-2 rounded-lg shadow text-sm ${
+                className={`max-w-[80%] rounded-lg p-2 text-sm shadow ${
                   msg.sender === "user"
-                    ? "bg-[#722420] text-white self-end ml-auto"
-                    : "bg-white text-gray-800 self-start"
+                    ? "ml-auto self-end bg-[#722420] text-white"
+                    : "self-start bg-white text-gray-800"
                 }`}
               >
                 {msg.text}
@@ -95,18 +99,18 @@ const ChatBot = () => {
           </div>
 
           {/* Input */}
-          <div className="flex border-t p-2 bg-white">
+          <div className="flex border-t bg-white p-2">
             <input
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="Recommendations, book info, etc..."
-              className="flex-1 p-2 rounded-l border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 rounded-l border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               onClick={handleSend}
-              className="bg-[#722420] hover:bg-[#722420] text-white px-4 py-2 rounded-r"
+              className="rounded-r bg-[#722420] px-4 py-2 text-white hover:bg-[#722420]"
             >
               <FontAwesomeIcon icon={faPaperPlane} size="lg" />
             </button>

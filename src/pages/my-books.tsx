@@ -31,7 +31,11 @@ export default function MyBooksPage() {
     },
     onError: (error: unknown) => {
       console.error("Failed to return book:", error);
-      setErrorMsg(error instanceof Error ? error.message : "Failed to return book. Please try again.");
+      setErrorMsg(
+        error instanceof Error
+          ? error.message
+          : "Failed to return book. Please try again.",
+      );
     },
   });
 
@@ -95,7 +99,7 @@ export default function MyBooksPage() {
                     rel="noopener noreferrer"
                     download
                   >
-                    <button className="h-20 w-40 rounded-full bg-green-500 text-white text-sm font-medium transition hover:bg-green-600 flex items-center justify-center shadow-md">
+                    <button className="flex h-20 w-40 items-center justify-center rounded-full bg-green-500 text-sm font-medium text-white shadow-md transition hover:bg-green-600">
                       Read Book
                     </button>
                   </a>
@@ -106,7 +110,7 @@ export default function MyBooksPage() {
                       <button className="rounded-full bg-blue-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-600">
                         Renew
                       </button>
-                    ) : ( 
+                    ) : (
                       <button
                         className="cursor-not-allowed rounded-full bg-gray-300 px-5 py-2 text-sm font-medium text-gray-600"
                         disabled
@@ -122,9 +126,14 @@ export default function MyBooksPage() {
                           copyId: book.copyId,
                         })
                       }
-                      disabled={returningCopyId === book.copyId || returnMutation.isPending}
+                      disabled={
+                        returningCopyId === book.copyId ||
+                        returnMutation.isPending
+                      }
                     >
-                      {returningCopyId === book.copyId ? "Returning..." : "Return"}
+                      {returningCopyId === book.copyId
+                        ? "Returning..."
+                        : "Return"}
                     </button>
                   </div>
                 </div>

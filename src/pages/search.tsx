@@ -123,7 +123,8 @@ export default function SearchResults() {
                         {book.title}
                       </h4>
                       <p className="text-sm text-gray-500">
-                        {book.series ?? "(No Series)"} {/* Display series name */}
+                        {book.series ?? "(No Series)"}{" "}
+                        {/* Display series name */}
                       </p>
                       <p className="mt-2 text-gray-700">{book.description}</p>
                     </div>

@@ -134,11 +134,13 @@ function AppLayout({ children }: { children: React.ReactNode }) {
             </SignedOut>
             <SignedIn>
               <div className="h-10 w-10 overflow-hidden rounded-full">
-                <UserButton appearance={{
-                  elements: {
-                    avatarBox: "h-10 w-10 p-0 m-0",
-                  }
-                }}/>
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: "h-10 w-10 p-0 m-0",
+                    },
+                  }}
+                />
               </div>
             </SignedIn>
           </div>
@@ -146,7 +148,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow p-6 ">{children}</main>
+      <main className="flex-grow p-6">{children}</main>
 
       {/* Footer */}
       <footer className="flex items-center justify-between border-t bg-white p-4 text-sm text-gray-500 shadow-inner">

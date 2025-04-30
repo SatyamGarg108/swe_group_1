@@ -28,8 +28,11 @@ export const borrowRouter = createTRPCRouter({
       const valid = rows.filter(
         (
           r,
-        ): r is { borrow: typeof r.borrow; book: NonNullable<typeof r.book>; copy: NonNullable<typeof r.copy> } =>
-          r.book !== null && r.copy !== null,
+        ): r is {
+          borrow: typeof r.borrow;
+          book: NonNullable<typeof r.book>;
+          copy: NonNullable<typeof r.copy>;
+        } => r.book !== null && r.copy !== null,
       );
       return valid.map(({ borrow, book, copy }) => ({
         id: borrow.id,
