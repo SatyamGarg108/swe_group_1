@@ -7,10 +7,7 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  // Force CommonJS externals to avoid ESM import errors (e.g., useContext not found)
-  experimental: {
-    esmExternals: false,
-  },
+  
 
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.
