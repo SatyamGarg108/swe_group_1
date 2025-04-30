@@ -9,12 +9,16 @@ import {
   bookCopies,
   reviews,
 } from "~/server/db/schema";
-import { eq, like, and, not, sql } from "drizzle-orm";
+import { eq, like, and, not, sql, or } from "drizzle-orm";
 
 export const bookRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
-    // Fetch all books from the database
-    return await ctx.db.select().from(books);
+    // Fetch 3 random books from the database
+    return await ctx.db
+      .select()
+      .from(books)
+      .orderBy(sql`RAND()`)
+      .limit(3);
   }),
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
@@ -92,10 +96,28 @@ export const bookRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       if (input.q) {
         return await ctx.db
-          .select()
+          .select({
+            id: books.id,
+            title: books.title,
+            series: books.series, // Include the series field
+            description: books.description,
+          })
           .from(books)
-          .where(like(books.title, `%${input.q}%`));
+          .where(
+            or(
+              like(books.title, `%${input.q}%`), // Search by title
+              like(books.series, `%${input.q}%`), // Search by series name
+              like(books.description, `%${input.q}%`) // Search by description
+            )
+          );
       }
-      return await ctx.db.select().from(books);
+      return await ctx.db
+        .select({
+          id: books.id,
+          title: books.title,
+          series: books.series, // Include the series field
+          description: books.description,
+        })
+        .from(books);
     }),
 });

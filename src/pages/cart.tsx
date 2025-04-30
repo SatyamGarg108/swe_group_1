@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { api } from "~/utils/api";
 import { useState } from "react";
+import Image from "next/image";
 
 function BorrowButton({
   bookId,
@@ -74,6 +75,13 @@ export default function CartPage() {
                 key={book.id}
                 className="flex items-center gap-6 rounded border border-gray-200 bg-white p-4 shadow-sm"
               >
+                <Image
+                  src={`/${book.id}.jpg`}
+                  alt={`Cover of ${book.title}`}
+                  width={100}
+                  height={150}
+                  className="rounded"
+                />
                 {/* Book Details */}
                 <div className="flex-1">
                   <Link

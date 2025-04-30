@@ -1,11 +1,11 @@
 import Head from "next/head";
 import Link from "next/link";
+import Image from "next/image";
 
 import React from "react";
 import { api } from "~/utils/api";
 
 export default function Home() {
-  // Remove mock data, use tRPC to fetch books
   const { data: books = [], isLoading } = api.book.getAll.useQuery();
 
   return (
@@ -36,6 +36,13 @@ export default function Home() {
             {books.map((book) => (
               <Link key={book.id} href={`/book/${book.id}`}>
                 <div className="group flex cursor-pointer flex-col items-center justify-center rounded-2xl bg-white p-6 shadow-md transition-all hover:shadow-xl">
+                  <Image
+                    src={`/${book.id}.jpg`}
+                    alt={`Cover of ${book.title}`}
+                    width={150}
+                    height={200}
+                    className="rounded"
+                  />
                   <div className="text-center">
                     <h3 className="text-lg font-semibold text-gray-800 transition group-hover:text-blue-500">
                       {book.title}

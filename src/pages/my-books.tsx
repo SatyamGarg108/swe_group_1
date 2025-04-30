@@ -2,6 +2,8 @@ import Head from "next/head";
 import { useUser } from "@clerk/nextjs";
 import { api } from "~/utils/api";
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function MyBooksPage() {
   const { user } = useUser();
@@ -48,9 +50,15 @@ export default function MyBooksPage() {
                 key={book.id}
                 className="flex items-center gap-6 rounded-xl bg-white p-5 shadow-md transition hover:shadow-lg"
               >
-                {/* Book Cover Placeholder */}
-                <div className="flex h-36 w-28 items-center justify-center rounded-lg border border-gray-300 bg-gray-100 text-sm text-gray-400">
-                  No cover
+                {/* Book Cover */}
+                <div className="flex h-36 w-28 items-center justify-center overflow-hidden rounded-lg border border-gray-300 bg-gray-100">
+                  <Image
+                    src={`/${book.id}.jpg`}
+                    alt={`Cover of ${book.title}`}
+                    width={112}
+                    height={144}
+                    className="object-cover"
+                  />
                 </div>
 
                 {/* Book Details */}
@@ -67,32 +75,42 @@ export default function MyBooksPage() {
                 </div>
 
                 {/* Renew & Return Buttons */}
-                <div className="flex flex-col items-center gap-2">
-                  {book.renewable ? (
-                    <button className="rounded-full bg-blue-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-600">
-                      Renew
+                <div className="flex items-center gap-4">
+                  {/* Read Book Button */}
+                  <Link href={`/read/${book.id}`}>
+                    <button className="h-20 w-40 rounded-full bg-green-500 text-white text-sm font-medium transition hover:bg-green-600 flex items-center justify-center shadow-md">
+                      Read Book
                     </button>
-                  ) : (
+                  </Link>
+
+                  {/* Renew & Return Buttons */}
+                  <div className="flex flex-col items-center gap-2">
+                    {book.renewable ? (
+                      <button className="rounded-full bg-blue-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-600">
+                        Renew
+                      </button>
+                    ) : ( 
+                      <button
+                        className="cursor-not-allowed rounded-full bg-gray-300 px-5 py-2 text-sm font-medium text-gray-600"
+                        disabled
+                      >
+                        Not Renewable
+                      </button>
+                    )}
                     <button
-                      className="cursor-not-allowed rounded-full bg-gray-300 px-5 py-2 text-sm font-medium text-gray-600"
-                      disabled
+                      className="rounded-full bg-red-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
+                      onClick={() => {
+                        setReturningId(book.id);
+                        returnMutation.mutate({
+                          userId: user.id,
+                          bookId: book.id,
+                        });
+                      }}
+                      disabled={returningId === book.id}
                     >
-                      Not Renewable
+                      {returningId === book.id ? "Returning..." : "Return"}
                     </button>
-                  )}
-                  <button
-                    className="rounded-full bg-red-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
-                    onClick={() => {
-                      setReturningId(book.id);
-                      returnMutation.mutate({
-                        userId: user.id,
-                        bookId: book.id,
-                      });
-                    }}
-                    disabled={returningId === book.id}
-                  >
-                    {returningId === book.id ? "Returning..." : "Return"}
-                  </button>
+                  </div>
                 </div>
               </div>
             ))

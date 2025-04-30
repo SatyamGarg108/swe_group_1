@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { useState } from "react";
 import { api } from "~/utils/api";
+import Image from "next/image";
 
 export default function SearchResults() {
   const router = useRouter();
@@ -110,14 +111,21 @@ export default function SearchResults() {
               results.map((book) => (
                 <Link key={book.id} href={`/book/${book.id}`}>
                   <div className="flex cursor-pointer items-center space-x-6 rounded border border-gray-300 bg-white p-4 shadow-sm hover:bg-gray-100">
-                    <div className="flex h-32 w-24 flex-shrink-0 items-center justify-center rounded bg-gray-200">
-                      <span className="text-gray-500">No cover</span>
-                    </div>
+                    <Image
+                      src={`/${book.id}.jpg`}
+                      alt={`Cover of ${book.title}`}
+                      width={100}
+                      height={150}
+                      className="rounded"
+                    />
                     <div className="flex-1">
-                      <h4 className="mb-2 text-lg font-semibold">
+                      <h4 className="mb-1 text-lg font-semibold">
                         {book.title}
                       </h4>
-                      <p className="text-gray-700">{book.description}</p>
+                      <p className="text-sm text-gray-500">
+                        {book.series ?? "(No Series)"} {/* Display series name */}
+                      </p>
+                      <p className="mt-2 text-gray-700">{book.description}</p>
                     </div>
                   </div>
                 </Link>
