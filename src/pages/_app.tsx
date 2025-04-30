@@ -22,6 +22,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { api } from "~/utils/api";
+import ChatBot from "./chatbot";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
@@ -49,8 +50,9 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       className={`${GeistSans.className} flex min-h-screen flex-col bg-gradient-to-br from-white to-gray-100`}
     >
       {/* Top Bar */}
+      <ChatBot />
       <header className="sticky top-0 z-50 border-b bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4">
           {/* Left Side Buttons */}
           <div className="flex items-center gap-3">
             <Link href="/">
@@ -64,7 +66,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Search Center */}
-          <div className="flex flex-1 flex-col items-center">
+          <div className="flex flex-1 items-center justify-center">
             <form
               onSubmit={handleSearch}
               className="flex w-full max-w-md items-center gap-2"
@@ -94,7 +96,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
               {/* Search Button */}
               <button
                 type="submit"
-                className="flex items-center justify-center rounded-full bg-blue-500 p-3 text-white transition hover:bg-blue-600"
+                className="flex items-center justify-center rounded-full bg-[#722420] p-3 text-white transition hover:bg-[#722420]"
                 aria-label="Search"
               >
                 <FontAwesomeIcon icon={faMagnifyingGlass} size="lg" />
@@ -131,8 +133,12 @@ function AppLayout({ children }: { children: React.ReactNode }) {
               </button>
             </SignedOut>
             <SignedIn>
-              <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-blue-500">
-                <UserButton />
+              <div className="h-10 w-10 overflow-hidden rounded-full">
+                <UserButton appearance={{
+                  elements: {
+                    avatarBox: "h-10 w-10 p-0 m-0",
+                  }
+                }}/>
               </div>
             </SignedIn>
           </div>
@@ -140,7 +146,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow p-6">{children}</main>
+      <main className="flex-grow p-6 ">{children}</main>
 
       {/* Footer */}
       <footer className="flex items-center justify-between border-t bg-white p-4 text-sm text-gray-500 shadow-inner">
@@ -148,9 +154,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           Language
         </button>
         <span>© 2025 All rights reserved</span>
-        <button className="rounded-full border border-gray-300 px-4 py-1 transition hover:bg-gray-100">
-          Help
-        </button>
+        <p></p>
       </footer>
     </div>
   );

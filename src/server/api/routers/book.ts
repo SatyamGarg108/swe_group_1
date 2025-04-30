@@ -13,12 +13,11 @@ import { eq, like, and, not, sql, or } from "drizzle-orm";
 
 export const bookRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
-    // Fetch 3 random books from the database
     return await ctx.db
       .select()
       .from(books)
       .orderBy(sql`RAND()`)
-      .limit(3);
+      .limit(9);
   }),
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
@@ -90,34 +89,95 @@ export const bookRouter = createTRPCRouter({
       };
     }),
 
-  // Simplified search: only title search
+  // Advanced search: multi-field, all filters
   search: publicProcedure
-    .input(z.object({ q: z.string().optional() }))
+    .input(
+      z.object({
+        q: z.string().optional(),
+        availableOnly: z.boolean().optional(),
+        newArrivals: z.boolean().optional(),
+        fiction: z.boolean().optional(),
+        nonFiction: z.boolean().optional(),
+        ebooks: z.boolean().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      if (input.q) {
-        return await ctx.db
-          .select({
-            id: books.id,
-            title: books.title,
-            series: books.series, // Include the series field
-            description: books.description,
-          })
-          .from(books)
-          .where(
-            or(
-              like(books.title, `%${input.q}%`), // Search by title
-              like(books.series, `%${input.q}%`), // Search by series name
-              like(books.description, `%${input.q}%`) // Search by description
-            )
-          );
-      }
-      return await ctx.db
+      const {
+        q,
+        availableOnly,
+        newArrivals,
+        fiction,
+        nonFiction,
+        ebooks: _ebooks, // eslint-ignore-unused
+      } = input;
+
+      // start in dynamic mode so each .where() merges instead of clobbering
+      let query = ctx.db
         .select({
           id: books.id,
           title: books.title,
-          series: books.series, // Include the series field
+          series: books.series,
           description: books.description,
         })
-        .from(books);
+        .from(books)
+        .$dynamic();
+
+      if (q) {
+        query = query.where(
+          or(
+            like(books.title, `%${q}%`),
+            like(books.series, `%${q}%`),
+            like(books.description, `%${q}%`),
+            like(books.isbn, `%${q}%`),
+          ),
+        );
+      }
+
+      if (availableOnly) {
+        query = query.where(
+          sql`EXISTS (
+            SELECT 1
+            FROM book_copies
+            WHERE book_copies.book_id = books.id
+              AND book_copies.status = 'available'
+          )`,
+        );
+      }
+
+      if (newArrivals) {
+        query = query.where(
+          sql`books.created_at > DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)`,
+        );
+      }
+
+      if (fiction) {
+        query = query.where(
+          sql`EXISTS (
+            SELECT 1
+            FROM book_categories bc
+            JOIN categories c
+              ON c.id = bc.category_id
+            WHERE bc.book_id = books.id
+              AND c.name LIKE '%Fiction%'
+          )`,
+        );
+      }
+
+      if (nonFiction) {
+        query = query.where(
+          sql`EXISTS (
+            SELECT 1
+            FROM book_categories bc
+            JOIN categories c
+              ON c.id = bc.category_id
+            WHERE bc.book_id = books.id
+              AND c.name LIKE '%Non-Fiction%'
+          )`,
+        );
+      }
+
+      // finally, actually run the built query
+      const results = await query.execute();
+      return results;
     }),
 });
