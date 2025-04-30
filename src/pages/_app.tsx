@@ -60,9 +60,11 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                 <FontAwesomeIcon icon={faHouse} size="lg" />
               </button>
             </Link>
-            <button className="flex items-center gap-2 rounded-full border px-4 py-2 font-medium text-gray-700 transition hover:bg-gray-100">
-              <FontAwesomeIcon icon={faBell} size="lg" />
-            </button>
+            <Link href="/notifications">
+              <button className="flex items-center gap-2 rounded-full border px-4 py-2 font-medium text-gray-700 transition hover:bg-gray-100">
+                <FontAwesomeIcon icon={faBell} size="lg" />
+              </button>
+            </Link>
           </div>
 
           {/* Search Center */}

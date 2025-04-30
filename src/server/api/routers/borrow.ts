@@ -24,18 +24,17 @@ export const borrowRouter = createTRPCRouter({
             isNull(borrowTransactions.returnDate),
           ),
         );
-      // Filter out entries without book and narrow types
+      // filter out any null book joins
       const valid = rows.filter(
-        (
-          r,
-        ): r is { borrow: typeof r.borrow; book: NonNullable<typeof r.book> } =>
-          r.book !== null,
+        (r): r is { borrow: typeof r.borrow; book: NonNullable<typeof r.book> } =>
+          r.book != null,
       );
-      return valid.map(({ borrow, book }) => ({
-        id: borrow.id,
-        title: book.title,
-        dueDate: borrow.dueDate,
-        renewable: borrow.renewalCount < 2,
+      // map to front-end shape
+      return valid.map((r) => ({
+        id: r.book.id,
+        title: r.book.title,
+        dueDate: r.borrow.dueDate,
+        renewable: r.borrow.renewalCount < 3,
       }));
     }),
   borrowBook: publicProcedure
@@ -108,5 +107,37 @@ export const borrowRouter = createTRPCRouter({
         .set({ status: "available" })
         .where(eq(bookCopies.id, rec.copy.id));
       return { success: true };
+    }),
+
+  // Add renewBook mutation
+  renewBook: publicProcedure
+    .input(z.object({ userId: z.string(), bookId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      // Find the active borrow record for this user and book
+      const rows = await ctx.db
+        .select({ borrow: borrowTransactions, copy: bookCopies })
+        .from(borrowTransactions)
+        .leftJoin(bookCopies, eq(bookCopies.id, borrowTransactions.copyId))
+        .where(
+          and(
+            eq(borrowTransactions.userId, input.userId),
+            eq(bookCopies.bookId, input.bookId),
+            isNull(borrowTransactions.returnDate),
+          ),
+        )
+        .limit(1);
+      const rec = rows[0];
+      if (!rec) throw new Error("No active borrow found");
+      if (rec.borrow.renewalCount >= 2) throw new Error("Maximum renewals reached");
+      // Calculate new due date (extend by 14 days)
+      const currentDue = new Date(rec.borrow.dueDate);
+      currentDue.setDate(currentDue.getDate() + 14);
+      const newDue = currentDue.toISOString().slice(0, 19).replace("T", " ");
+      // Update borrow record
+      await ctx.db
+        .update(borrowTransactions)
+        .set({ dueDate: newDue, renewalCount: rec.borrow.renewalCount + 1 })
+        .where(eq(borrowTransactions.id, rec.borrow.id));
+      return { success: true, newDueDate: newDue };
     }),
 });

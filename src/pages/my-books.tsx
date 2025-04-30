@@ -16,12 +16,23 @@ export default function MyBooksPage() {
     { userId: user?.id ?? "" },
     { enabled: !!user },
   );
+  // Setup return book mutation and state
   const returnMutation = api.borrow.returnBook.useMutation({
-    onSuccess: () => {
+    onSettled: () => {
+      setReturningId(null);
       void refetch();
     },
   });
   const [returningId, setReturningId] = useState<number | null>(null);
+
+  // Setup renew book mutation and state
+  const renewMutation = api.borrow.renewBook.useMutation({
+    onSuccess: () => {
+      void refetch();
+      setRenewingId(null);
+    },
+  });
+  const [renewingId, setRenewingId] = useState<number | null>(null);
 
   if (!user)
     return (
@@ -86,8 +97,15 @@ export default function MyBooksPage() {
                   {/* Renew & Return Buttons */}
                   <div className="flex flex-col items-center gap-2">
                     {book.renewable ? (
-                      <button className="rounded-full bg-blue-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-600">
-                        Renew
+                      <button
+                        className="rounded-full bg-blue-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-600 disabled:opacity-50"
+                        onClick={() => {
+                          setRenewingId(book.id);
+                          renewMutation.mutate({ userId: user.id, bookId: book.id });
+                        }}
+                        disabled={renewingId === book.id}
+                      >
+                        {renewingId === book.id ? 'Renewing...' : 'Renew'}
                       </button>
                     ) : ( 
                       <button
