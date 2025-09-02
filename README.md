@@ -19,7 +19,7 @@ A full‑stack library catalog and borrowing system built with Next.js, tRPC, Dr
 - Borrowing: reserves an available copy, sets due date (14 days)
 - My Books: view current checkouts, renew (up to a limit), return
 - Notifications: highlights due/overdue items (client‑side computed)
-- Chatbot: lightweight UI overlay for canned suggestions
+- Chatbot: lightweight bot with conditional replies using database
 
 ## Project Structure
 
